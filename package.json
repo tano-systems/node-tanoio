@@ -1,0 +1,30 @@
+{
+  "name": "tanoio",
+  "version": "0.9.0",
+  "description": "Node.js binding for Tano IO library",
+  "main": "lib/index.js",
+  "dependencies": {
+    "bindings": "1.2.1",
+    "nan": "2.14.0",
+    "printf": "0.5.2"
+  },
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
+  },
+  "keywords": [
+    "native",
+    "binding",
+    "addon",
+    "tanoio"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tano-systems/node-tanoio.git"
+  },
+  "author": "Anton Kikin <a.kikin@tano-systems.com>",
+  "contributors": [
+    "Anton Kikin (https://github.com/namedun)"
+  ],
+  "license": "MIT"
+}
