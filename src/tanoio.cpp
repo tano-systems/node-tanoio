@@ -395,8 +395,6 @@ class TanoIO
 		OBJECT_SET_STRING(return_obj, minfo, description);
 		OBJECT_SET_STRING(return_obj, minfo, hardware_id);
 		OBJECT_SET_STRING(return_obj, minfo, requires);
-		OBJECT_SET_STRING(return_obj, minfo, io_after);
-		OBJECT_SET_STRING(return_obj, minfo, io_before);
 
 		info.GetReturnValue().Set(scope.Escape(return_obj));
 	}
