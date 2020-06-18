@@ -37,12 +37,14 @@ using namespace v8;
 
 static void toCString(Local<String> val, char **ptr)
 {
-	*ptr = new char[val->Utf8Length() + 1];
 #if (NODE_MODULE_VERSION > 0x000B)
 	// Node 0.11+ (0.11.3 and below won't compile with these)
-	val->WriteOneByte(reinterpret_cast<uint8_t*>(*ptr), 0, -1, 0);
+	Isolate *isolate = v8::Isolate::GetCurrent();
+	*ptr = new char[val->Utf8Length(isolate) + 1];
+	val->WriteOneByte(isolate, reinterpret_cast<uint8_t*>(*ptr), 0, -1, 0);
 #else
 	// Node 0.8 and 0.10
+	*ptr = new char[val->Utf8Length() + 1];
 	val->WriteAscii(*ptr, 0, -1, 0);
 #endif
 }
@@ -153,7 +155,11 @@ static void event_handler_a(uv_work_t* req, int arg)
 	v8::Local<v8::Function> lf =
 		v8::Local<v8::Function>::New(isolate, tanoio_events_callback);
 
+#if (NODE_MODULE_VERSION > 0x000B)
+	lf->Call(Nan::GetCurrentContext(), Null(isolate), 2, argv);
+#else
 	lf->Call(Null(isolate), 2, argv);
+#endif
 }
 
 static void native_events_callback(
@@ -250,12 +256,20 @@ class TanoIO
 		tanoio_status_t status;
 		struct tanoio_config config;
 
+#if (NODE_MODULE_VERSION > 0x000B)
+		Isolate *isolate = v8::Isolate::GetCurrent();
+		toCString(Nan::Get(config_obj, Nan::New("url_ipc")
+			.ToLocalChecked()).ToLocalChecked()->ToString(isolate), &config.url_ipc);
+
+		toCString(Nan::Get(config_obj, Nan::New("url_events")
+			.ToLocalChecked()).ToLocalChecked()->ToString(isolate), &config.url_events);
+#else
 		toCString(Nan::Get(config_obj, Nan::New("url_ipc")
 			.ToLocalChecked()).ToLocalChecked()->ToString(), &config.url_ipc);
 
 		toCString(Nan::Get(config_obj, Nan::New("url_events")
 			.ToLocalChecked()).ToLocalChecked()->ToString(), &config.url_events);
-
+#endif
 		// Setup events callback function
 		config.events_callback = native_events_callback;
 
@@ -1161,7 +1175,11 @@ class TanoIO
 	 * |_____|_| |_|_|\__|
 	 *
 	 */
+#if (NODE_MODULE_VERSION > 0x000B)
+	static void Initialize(v8::Local<v8::Object> target)
+#else
 	static void Initialize(Handle<Object> target)
+#endif
 	{
 		Nan::HandleScope scope;
 
@@ -1392,7 +1410,11 @@ class TanoIO
 
 extern "C"
 {
+#if (NODE_MODULE_VERSION > 0x000B)
+	static void init (v8::Local<v8::Object> target)
+#else
 	static void init (Handle<Object> target)
+#endif
 	{
 		TanoIO::Initialize(target);
 	}
